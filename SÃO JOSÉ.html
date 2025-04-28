@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Sepultamentos - Cemitério São José</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #4f46e5;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .file-input-label:hover {
+            background-color: #4338ca;
+        }
+        #fileList {
+            margin-top: 10px;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            padding: 5px;
+            background-color: #f3f4f6;
+            border-radius: 5px;
+        }
+        .file-item button {
+            margin-left: 10px;
+            color: #ef4444;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .hidden {
+            display: none;
+        }
+        #spreadsheetView {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4f46e5;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-cross text-purple-600 mr-2"></i>
+                Sistema de Sepultamentos
+            </h1>
+            <h2 class="text-2xl text-gray-600">Cemitério São José</h2>
+        </header>
+
+        <div class="flex mb-6 justify-center">
+            <button id="registerTab" class="px-6 py-2 bg-purple-600 text-white rounded-l-lg font-medium focus:outline-none">
+                <i class="fas fa-plus-circle mr-2"></i>Registrar Sepultamento
+            </button>
+            <button id="consultTab" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-r-lg font-medium focus:outline-none">
+                <i class="fas fa-search mr-2"></i>Consultar Registros
+            </button>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="registrationSection" class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">
+                <i class="fas fa-file-alt text-purple-600 mr-2"></i>Formulário de Sepultamento
+            </h2>
+            
+            <form id="burialForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="burialNumber" class="block text-sm font-medium text-gray-700">Número do Sepultamento*</label>
+                        <input type="text" id="burialNumber" name="burialNumber" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                    
+                    <div>
+                        <label for="deceasedName" class="block text-sm font-medium text-gray-700">Nome do Falecido*</label>
+                        <input type="text" id="deceasedName" name="deceasedName" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="birthDate" class="block text-sm font-medium text-gray-700">Data de Nascimento*</label>
+                        <input type="date" id="birthDate" name="birthDate" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                    
+                    <div>
+                        <label for="deathDate" class="block text-sm font-medium text-gray-700">Data de Óbito*</label>
+                        <input type="date" id="deathDate" name="deathDate" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="burialDate" class="block text-sm font-medium text-gray-700">Data de Sepultamento*</label>
+                    <input type="date" id="burialDate" name="burialDate" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="responsible1" class="block text-sm font-medium text-gray-700">Responsável 1*</label>
+                        <input type="text" id="responsible1" name="responsible1" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                    
+                    <div>
+                        <label for="cpf1" class="block text-sm font-medium text-gray-700">CPF Responsável 1*</label>
+                        <input type="text" id="cpf1" name="cpf1" required placeholder="000.000.000-00"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="responsible2" class="block text-sm font-medium text-gray-700">Responsável 2</label>
+                        <input type="text" id="responsible2" name="responsible2"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                    
+                    <div>
+                        <label for="cpf2" class="block text-sm font-medium text-gray-700">CPF Responsável 2</label>
+                        <input type="text" id="cpf2" name="cpf2" placeholder="000.000.000-00"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="graveType" class="block text-sm font-medium text-gray-700">Tipo de Jazigo*</label>
+                    <select id="graveType" name="graveType" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                        <option value="">Selecione...</option>
+                        <option value="Mausoléu">Mausoléu</option>
+                        <option value="Jardineira">Jardineira</option>
+                        <option value="Cova Rasa">Cova Rasa</option>
+                        <option value="Gaveta Municipal">Gaveta Municipal</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700">Localização do Jazigo*</label>
+                    <input type="text" id="location" name="location" required placeholder="Ex: Quadra A, Lote 12, Sepultura 5"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                </div>
+
+                <div>
+                    <label for="observations" class="block text-sm font-medium text-gray-700">Observações</label>
+                    <textarea id="observations" name="observations" rows="3"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Anexar Documentos</label>
+                    <label for="fileUpload" class="file-input-label">
+                        <i class="fas fa-paperclip mr-2"></i>Selecionar Arquivos
+                    </label>
+                    <input type="file" id="fileUpload" name="fileUpload" multiple class="hidden">
+                    <div id="fileList"></div>
+                </div>
+
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="reset" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                        <i class="fas fa-eraser mr-2"></i>Limpar
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                        <i class="fas fa-save mr-2"></i>Salvar Registro
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Consultation Section -->
+        <div id="consultationSection" class="bg-white p-6 rounded-lg shadow-md hidden">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">
+                <i class="fas fa-search text-purple-600 mr-2"></i>Consulta de Registros
+            </h2>
+            
+            <div class="mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label for="searchBurialNumber" class="block text-sm font-medium text-gray-700">Número do Sepultamento</label>
+                        <input type="text" id="searchBurialNumber" placeholder="Buscar por número..."
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                    <div>
+                        <label for="searchDeceasedName" class="block text-sm font-medium text-gray-700">Nome do Falecido</label>
+                        <input type="text" id="searchDeceasedName" placeholder="Buscar por nome..."
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                    <div>
+                        <label for="searchResponsible" class="block text-sm font-medium text-gray-700">Responsável</label>
+                        <input type="text" id="searchResponsible" placeholder="Buscar por responsável..."
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="searchGraveType" class="block text-sm font-medium text-gray-700">Tipo de Jazigo</label>
+                        <select id="searchGraveType"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                            <option value="">Todos os tipos</option>
+                            <option value="Mausoléu">Mausoléu</option>
+                            <option value="Jardineira">Jardineira</option>
+                            <option value="Cova Rasa">Cova Rasa</option>
+                            <option value="Gaveta Municipal">Gaveta Municipal</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="searchLocation" class="block text-sm font-medium text-gray-700">Localização</label>
+                        <input type="text" id="searchLocation" placeholder="Buscar por localização..."
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end mt-4">
+                    <button id="searchButton" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                        <i class="fas fa-search mr-2"></i>Buscar
+                    </button>
+                </div>
+            </div>
+            
+            <div id="spreadsheetView">
+                <table id="burialRecordsTable">
+                    <thead>
+                        <tr>
+                            <th>Nº Sepult.</th>
+                            <th>Falecido</th>
+                            <th>Nascimento</th>
+                            <th>Óbito</th>
+                            <th>Sepultamento</th>
+                            <th>Tipo Jazigo</th>
+                            <th>Localização</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTableBody">
+                        <!-- Records will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 flex justify-between items-center">
+                <div id="recordCount" class="text-sm text-gray-600">Total de registros: 0</div>
+                <button id="exportButton" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    <i class="fas fa-file-excel mr-2"></i>Exportar para Excel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Record Details -->
+    <div id="recordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Detalhes do Registro</h3>
+                <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="modalContent" class="space-y-3">
+                <!-- Record details will be inserted here -->
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button id="printModal" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mr-2">
+                    <i class="fas fa-print mr-2"></i>Imprimir
+                </button>
+                <button id="closeModalBtn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize the spreadsheet in localStorage if it doesn't exist
+        if (!localStorage.getItem('cemeteryRecords')) {
+            localStorage.setItem('cemeteryRecords', JSON.stringify([]));
+        }
+
+        // DOM elements
+        const registerTab = document.getElementById('registerTab');
+        const consultTab = document.getElementById('consultTab');
+        const registrationSection = document.getElementById('registrationSection');
+        const consultationSection = document.getElementById('consultationSection');
+        const burialForm = document.getElementById('burialForm');
+        const fileUpload = document.getElementById('fileUpload');
+        const fileList = document.getElementById('fileList');
+        const recordsTableBody = document.getElementById('recordsTableBody');
+        const searchButton = document.getElementById('searchButton');
+        const recordModal = document.getElementById('recordModal');
+        const closeModal = document.getElementById('closeModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalContent = document.getElementById('modalContent');
+        const printModal = document.getElementById('printModal');
+        const exportButton = document.getElementById('exportButton');
+        const recordCount = document.getElementById('recordCount');
+
+        // Tab switching
+        registerTab.addEventListener('click', () => {
+            registrationSection.classList.remove('hidden');
+            consultationSection.classList.add('hidden');
+            registerTab.classList.remove('bg-gray-300', 'text-gray-700');
+            registerTab.classList.add('bg-purple-600', 'text-white');
+            consultTab.classList.remove('bg-purple-600', 'text-white');
+            consultTab.classList.add('bg-gray-300', 'text-gray-700');
+        });
+
+        consultTab.addEventListener('click', () => {
+            registrationSection.classList.add('hidden');
+            consultationSection.classList.remove('hidden');
+            consultTab.classList.remove('bg-gray-300', 'text-gray-700');
+            consultTab.classList.add('bg-purple-600', 'text-white');
+            registerTab.classList.remove('bg-purple-600', 'text-white');
+            registerTab.classList.add('bg-gray-300', 'text-gray-700');
+            loadRecords();
+        });
+
+        // File upload handling
+        fileUpload.addEventListener('change', (e) => {
+            fileList.innerHTML = '';
+            Array.from(e.target.files).forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name}</span>
+                    <button type="button" onclick="removeFile(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        });
+
+        // Function to remove file from the list
+        window.removeFile = function(index) {
+            const files = Array.from(fileUpload.files);
+            files.splice(index, 1);
+            
+            // Create a new DataTransfer object to update the file input
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            fileUpload.files = dataTransfer.files;
+            
+            // Trigger the change event to update the UI
+            const event = new Event('change');
+            fileUpload.dispatchEvent(event);
+        };
+
+        // Form submission
+        burialForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Get form values
+            const formData = new FormData(burialForm);
+            const record = {
+                burialNumber: formData.get('burialNumber'),
+                deceasedName: formData.get('deceasedName'),
+                birthDate: formData.get('birthDate'),
+                deathDate: formData.get('deathDate'),
+                burialDate: formData.get('burialDate'),
+                responsible1: formData.get('responsible1'),
+                cpf1: formData.get('cpf1'),
+                responsible2: formData.get('responsible2'),
+                cpf2: formData.get('cpf2'),
+                graveType: formData.get('graveType'),
+                location: formData.get('location'),
+                observations: formData.get('observations'),
+                files: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            // Handle file uploads (simulated - in a real app, you would upload to a server)
+            if (fileUpload.files.length > 0) {
+                Array.from(fileUpload.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        record.files.push({
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            data: e.target.result.split(',')[1] // Base64 data
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+            
+            // Save to localStorage
+            const records = JSON.parse(localStorage.getItem('cemeteryRecords'));
+            records.push(record);
+            localStorage.setItem('cemeteryRecords', JSON.stringify(records));
+            
+            // Reset form
+            burialForm.reset();
+            fileList.innerHTML = '';
+            
+            // Show success message
+            alert('Registro de sepultamento salvo com sucesso!');
+            
+            // If on consultation tab, refresh the records
+            if (!consultationSection.classList.contains('hidden')) {
+                loadRecords();
+            }
+        });
+
+        // Load records into the table
+        function loadRecords(searchParams = {}) {
+            const records = JSON.parse(localStorage.getItem('cemeteryRecords'));
+            recordsTableBody.innerHTML = '';
+            
+            let filteredRecords = records;
+            
+            // Apply filters if search parameters are provided
+            if (searchParams.burialNumber) {
+                filteredRecords = filteredRecords.filter(record => 
+                    record.burialNumber.includes(searchParams.burialNumber)
+                );
+            }
+            
+            if (searchParams.deceasedName) {
+                filteredRecords = filteredRecords.filter(record => 
+                    record.deceasedName.toLowerCase().includes(searchParams.deceasedName.toLowerCase())
+                );
+            }
+            
+            if (searchParams.responsible) {
+                filteredRecords = filteredRecords.filter(record => 
+                    record.responsible1.toLowerCase().includes(searchParams.responsible.toLowerCase()) ||
+                    (record.responsible2 && record.responsible2.toLowerCase().includes(searchParams.responsible.toLowerCase()))
+                );
+            }
+            
+            if (searchParams.graveType) {
+                filteredRecords = filteredRecords.filter(record => 
+                    record.graveType === searchParams.graveType
+                );
+            }
+            
+            if (searchParams.location) {
+                filteredRecords = filteredRecords.filter(record => 
+                    record.location.toLowerCase().includes(searchParams.location.toLowerCase())
+                );
+            }
+            
+            // Sort by burial date (newest first)
+            filteredRecords.sort((a, b) => new Date(b.burialDate) - new Date(a.burialDate));
+            
+            // Populate the table
+            filteredRecords.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.burialNumber}</td>
+                    <td>${record.deceasedName}</td>
+                    <td>${formatDate(record.birthDate)}</td>
+                    <td>${formatDate(record.deathDate)}</td>
+                    <td>${formatDate(record.burialDate)}</td>
+                    <td>${record.graveType}</td>
+                    <td>${record.location}</td>
+                    <td class="flex space-x-2">
+                        <button onclick="viewRecordDetails('${record.burialNumber}')" class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="editRecord('${record.burialNumber}')" class="text-yellow-600 hover:text-yellow-800">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteRecord('${record.burialNumber}')" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                recordsTableBody.appendChild(row);
+            });
+            
+            // Update record count
+            recordCount.textContent = `Total de registros: ${filteredRecords.length}`;
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        // View record details in modal
+        window.viewRecordDetails = function(burialNumber) {
+            const records = JSON.parse(localStorage.getItem('cemeteryRecords'));
+            const record = records.find(r => r.burialNumber === burialNumber);
+            
+            if (!record) {
+                alert('Registro não encontrado!');
+                return;
+            }
+            
+            modalContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-medium text-gray-800">Número do Sepultamento:</h4>
+                        <p>${record.burialNumber}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">Nome do Falecido:</h4>
+                        <p>${record.deceasedName}</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <h4 class="font-medium text-gray-800">Data de Nascimento:</h4>
+                        <p>${formatDate(record.birthDate)}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">Data de Óbito:</h4>
+                        <p>${formatDate(record.deathDate)}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">Data de Sepultamento:</h4>
+                        <p>${formatDate(record.burialDate)}</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-medium text-gray-800">Responsável 1:</h4>
+                        <p>${record.responsible1}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">CPF Responsável 1:</h4>
+                        <p>${record.cpf1 || 'Não informado'}</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-medium text-gray-800">Responsável 2:</h4>
+                        <p>${record.responsible2 || 'Não informado'}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">CPF Responsável 2:</h4>
+                        <p>${record.cpf2 || 'Não informado'}</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-medium text-gray-800">Tipo de Jazigo:</h4>
+                        <p>${record.graveType}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">Localização:</h4>
+                        <p>${record.location}</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium text-gray-800">Observações:</h4>
+                    <p>${record.observations || 'Nenhuma observação registrada'}</p>
+                </div>
+                
+                ${record.files.length > 0 ? `
+                <div>
+                    <h4 class="font-medium text-gray-800">Documentos Anexados:</h4>
+                    <ul class="list-disc pl-5">
+                        ${record.files.map(file => `<li>${file.name} (${formatFileSize(file.size)})</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            `;
+            
+            recordModal.classList.remove('hidden');
+        };
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            recordModal.classList.add('hidden');
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            recordModal.classList.add('hidden');
+        });
+
+        // Print modal content
+        printModal.addEventListener('click', () => {
+            const printContent = modalContent.innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = `
+                <h2 class="text-xl font-bold mb-4">Detalhes do Sepultamento - Cemitério São José</h2>
+                ${printContent}
+            `;
+            
+            window.print();
+            document.body.innerHTML = originalContent;
+            loadRecords();
+        });
+
+        // Search functionality
+        searchButton.addEventListener('click', () => {
+            const searchParams = {
+                burialNumber: document.getElementById('searchBurialNumber').value,
+                deceasedName: document.getElementById('searchDeceasedName').value,
+                responsible: document.getElementById('searchResponsible').value,
+                graveType: document.getElementById('searchGraveType').value,
+                location: document.getElementById('searchLocation').value
+            };
+            
+            loadRecords(searchParams);
+        });
+
+        // Edit record (simplified - in a real app, this would be more complex)
+        window.editRecord = function(burialNumber) {
+            alert(`Funcionalidade de edição para o registro ${burialNumber} será implementada.`);
+        };
+
+        // Delete record
+        window.deleteRecord = function(burialNumber) {
+            if (confirm(`Tem certeza que deseja excluir o registro ${burialNumber}? Esta ação não pode ser desfeita.`)) {
+                const records = JSON.parse(localStorage.getItem('cemeteryRecords'));
+                const updatedRecords = records.filter(record => record.burialNumber !== burialNumber);
+                localStorage.setItem('cemeteryRecords', JSON.stringify(updatedRecords));
+                loadRecords();
+                alert('Registro excluído com sucesso!');
+            }
+        };
+
+        // Export to Excel (simulated)
+        exportButton.addEventListener('click', () => {
+            const records = JSON.parse(localStorage.getItem('cemeteryRecords'));
+            
+            if (records.length === 0) {
+                alert('Não há registros para exportar!');
+                return;
+            }
+            
+            // Create CSV content
+            let csvContent = "Número Sepultamento,Nome Falecido,Data Nascimento,Data Óbito,Data Sepultamento,Responsável 1,CPF 1,Responsável 2,CPF 2,Tipo Jazigo,Localização,Observações\n";
+            
+            records.forEach(record => {
+                csvContent += `"${record.burialNumber}","${record.deceasedName}","${formatDate(record.birthDate)}","${formatDate(record.deathDate)}","${formatDate(record.burialDate)}","${record.responsible1}","${record.cpf1}","${record.responsible2 || ''}","${record.cpf2 || ''}","${record.graveType}","${record.location}","${record.observations || ''}"\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `registros_cemiterio_sao_jose_${new Date().toISOString().slice(0, 10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert('Exportação concluída! Um arquivo CSV foi baixado.');
+        });
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set default tab
+            registerTab.click();
+        });
+    </script>
+</body>
+</html>
